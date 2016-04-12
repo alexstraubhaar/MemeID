@@ -25,15 +25,27 @@ def traitement(img, imgQuery):
     # cv2.drawMatchesKnn expects list of lists as matches.
     img3 = cv2.drawMatchesKnn(img,kp1,imgQuery,kp2,good,None,flags=2)
 
-    plt.imshow(img3)
-    plt.show()
+    return img3, good, matches
 
 if __name__ == "__main__":
-    img = cv2.imread('img/memes/meme.jpg', 0)
-    imgQuery = cv2.imread('img/templates/doge.jpg', 0)
+    allRef = {
+        'img/templates/doge.jpg',
+        'img/templates/feelsbadman.jpg',
+        'img/templates/scumbagsteve.jpg'
+    }
 
     filepath = askopenfilename(title="Ouvrir une image", filetypes=[('img files', '.png'), ('all files', '.*')])
     img = cv2.imread(filepath);
 
+    bestResult = [None, [], []]
 
-    traitement(img, imgQuery)
+    for template in allRef:
+        imgQuery = cv2.imread(template, 0)
+        img3, good, matches = traitement(img, imgQuery)
+        if bestResult[1].__len__() < good.__len__():
+            bestResult[0] = img3
+            bestResult[1] = good
+            bestResult[2] = matches
+
+    plt.imshow(bestResult[0])
+    plt.show()
