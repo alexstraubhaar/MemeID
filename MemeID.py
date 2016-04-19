@@ -34,7 +34,9 @@ if __name__ == "__main__":
         'img/templates/scumbagsteve.jpg'
     }
 
-    filepath = askopenfilename(title="Ouvrir une image", filetypes=[('img files', '.png'), ('all files', '.*')])
+    filepath = askopenfilename(title="Ouvrir une image", filetypes=[('img files', '.png .jpg .jpeg'), ('all files', '.*')])
+    if filepath == '':
+        exit()
     img = cv2.imread(filepath);
 
     bestResult = [None, [], []]
