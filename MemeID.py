@@ -1,8 +1,13 @@
 import cv2
-from tkinter import *
+import tkinter as tk
 from tkinter.filedialog import *
 import numpy as np
 from matplotlib import pyplot as plt
+import glob, os
+
+from PIL import Image
+from PIL import ImageTk as tki
+from tkinter import PhotoImage
 
 def traitement(img, imgQuery):
     # Initiate SIFT detector
@@ -27,16 +32,22 @@ def traitement(img, imgQuery):
 
     return img3, good, matches
 
-if __name__ == "__main__":
-    allRef = {
-        'img/templates/doge.jpg',
-        'img/templates/feelsbadman.jpg',
-        'img/templates/scumbagsteve.jpg'
-    }
-
-    filepath = askopenfilename(title="Ouvrir une image", filetypes=[('img files', '.png .jpg .jpeg'), ('all files', '.*')])
+def chooseImage():
+    filepath = askopenfilename(title="Ouvrir une image",
+                               filetypes=[('img files', '.png .jpg .jpeg'), ('all files', '.*')])
     if filepath == '':
-        exit()
+        return None
+    return filepath
+
+def findMeme(filepath):
+    allRef = []
+
+    os.chdir("./img/templates")
+    for file in glob.glob("*.jpg"):
+        allRef.append(os.path.abspath(file))
+
+    if filepath is None:
+        return None
     img = cv2.imread(filepath);
 
     bestResult = [None, [], []]
@@ -48,6 +59,42 @@ if __name__ == "__main__":
             bestResult[0] = img3
             bestResult[1] = good
             bestResult[2] = matches
+    return bestResult
 
-    plt.imshow(bestResult[0])
-    plt.show()
+def work():
+    filepath = chooseImage()
+    result = findMeme(filepath)
+    #Ici, on veut prendre l'image dans result[0] puis l'afficher dans le canvas
+    #aide : https://stackoverflow.com/questions/28670461/read-an-image-with-opencv-and-display-it-with-tkinter
+    canvas = Canvas(fenetre, width=350, height=200)
+
+    canvas.pack()
+
+
+if __name__ == "__main__":
+    fenetre = tk.Tk()
+    fenetre.title('MemeID')
+
+    #Barre de menu
+    menubar = Menu(fenetre)
+    menu1 = Menu(menubar, tearoff=0)
+    menu1.add_command(label="Ouvrir...", command=work)
+    menu1.add_separator()
+    menu1.add_command(label="Quitter", command=fenetre.quit)
+    menubar.add_cascade(label="Fichier", menu=menu1)
+
+    fenetre.config(menu=menubar)
+
+    #Image
+    photo = None
+
+    canvas = Canvas(fenetre, width=350, height=200)
+    canvas.create_image(0, 0, anchor=NW, image=photo)
+    canvas.pack()
+
+
+
+
+
+
+    fenetre.mainloop()
