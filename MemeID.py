@@ -67,7 +67,7 @@ def work():
     #Ici, on veut prendre l'image dans result[0] puis l'afficher dans le canvas
     #aide : https://stackoverflow.com/questions/28670461/read-an-image-with-opencv-and-display-it-with-tkinter
     canvas = Canvas(fenetre, width=350, height=200)
-
+    
     canvas.pack()
 
 
