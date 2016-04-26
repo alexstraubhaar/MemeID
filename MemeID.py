@@ -64,11 +64,13 @@ def findMeme(filepath):
 def work():
     filepath = chooseImage()
     result = findMeme(filepath)
-    #Ici, on veut prendre l'image dans result[0] puis l'afficher dans le canvas
-    #aide : https://stackoverflow.com/questions/28670461/read-an-image-with-opencv-and-display-it-with-tkinter
-    canvas = Canvas(fenetre, width=350, height=200)
-    
-    canvas.pack()
+
+    im = Image.fromarray(result[0])
+    imgtk = tki.PhotoImage(image=im)
+
+    # Put it in the display window
+    labelImage.imgtk = imgtk;
+    labelImage.config(image=imgtk)
 
 
 if __name__ == "__main__":
@@ -82,6 +84,8 @@ if __name__ == "__main__":
     menu1.add_separator()
     menu1.add_command(label="Quitter", command=fenetre.quit)
     menubar.add_cascade(label="Fichier", menu=menu1)
+    labelImage = Label(fenetre)
+    labelImage.pack(fill=BOTH)
 
     fenetre.config(menu=menubar)
 
