@@ -96,9 +96,7 @@ if __name__ == "__main__":
     canvas.create_image(0, 0, anchor=NW, image=photo)
     canvas.pack()
 
-
-
-
-
+    # plt.imshow(bestResult[0])
+    # plt.show()
 
     fenetre.mainloop()
