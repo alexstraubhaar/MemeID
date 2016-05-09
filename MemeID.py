@@ -13,6 +13,7 @@ from PIL import ImageTk as tki
 class MainApp:
 
     def __init__(self, root):
+        root.geometry("800x600")
         #Barre de menu
         self.menubar = Menu(root)
         self.menu1 = Menu(self.menubar, tearoff=0)
@@ -22,10 +23,30 @@ class MainApp:
         self.menubar.add_cascade(label="Fichier", menu=self.menu1)
         # un vrai bouton ça serait bien
         self.menu1.add_command(label="So dank", command=self.knowYourDank)
-        self.labelImage = Label(root)
-        self.labelImage.pack(fill=BOTH)
+
+        self.panel = PanedWindow(root, orient=HORIZONTAL)
+        self.panel.pack(side=TOP, expand=Y, fill=BOTH, pady=2, padx=2)
+
+        #Bouton KnowYourMeme
+        self.button1 = Button(self.panel, text="So dank", command=self.knowYourDank)
+        self.panel.add(self.button1)
+
+        #Image
+        self.imgStart = Image.open("img/start.png")
+        self.tkimgStart = tki.PhotoImage(self.imgStart)
+        self.labelImage = Label(self.panel,image=self.tkimgStart, anchor=CENTER)
+        self.labelImage.bind("<Configure>",self.resize_image)
+        self.panel.add(self.labelImage)
+
+        self.panel.pack()
 
         root.config(menu=self.menubar)
+
+        #Attributs
+        self.result = None
+        self.copy_of_image = None
+        self.im = None
+        self.imgtk = None
 
     def traitement(self, img, imgQuery):
         # Initiate SIFT detector
@@ -62,37 +83,52 @@ class MainApp:
 
         os.chdir("./img/templates")
         for file in glob.glob("*.jpg"):
-            allRef.append(os.path.abspath(file))
+            allRef.append([os.path.abspath(file),os.path.splitext(file)[0]])
 
+        print(allRef)
         if filepath is None:
             return None
         img = cv2.imread(filepath);
 
-        bestResult = [None, [], []]
+        bestResult = [None, [], [],None]
 
         for template in allRef:
-            imgQuery = cv2.imread(template, 0)
+            imgQuery = cv2.imread(template[0], 0)
             img3, good, matches = self.traitement(img, imgQuery)
             if bestResult[1].__len__() < good.__len__():
                 bestResult[0] = img3
                 bestResult[1] = good
                 bestResult[2] = matches
+                bestResult[3] = template[1]
         return bestResult
 
     def work(self):
         filepath = self.chooseImage()
-        result = self.findMeme(filepath)
+        self.result = self.findMeme(filepath)
 
-        im = Image.fromarray(result[0])
-        imgtk = tki.PhotoImage(image=im)
+        self.im = Image.fromarray(self.result[0])
+        self.imgtk = tki.PhotoImage(image=self.im)
 
         # Put it in the display window
-        self.labelImage.imgtk = imgtk;
-        self.labelImage.config(image=imgtk)
+        self.labelImage.imgtk = self.imgtk;
+        self.labelImage.config(image=self.imgtk)
+
+        self.copy_of_image = self.im.copy()
 
     # Ouvrir la page KYM du meme identifié
-    def knowYourDank(self, bestResult):
-        webbrowser.open('www.knowyourmeme.com/memes/')
+    def knowYourDank(self):
+        try:
+            webbrowser.open('www.knowyourmeme.com/memes/' + self.result[3])
+        except:
+            print("Pas de result")
+
+    def resize_image(self,event):
+        new_width = self.labelImage.winfo_width()
+        new_height = self.labelImage.winfo_height()
+        image = self.copy_of_image.resize((new_width, new_height))
+        photo = tki.PhotoImage(image=image)
+        self.labelImage.config(image=photo)
+        self.labelImage.image = photo  # avoid garbage collection
 
 
 if __name__ == "__main__":
@@ -100,8 +136,5 @@ if __name__ == "__main__":
     fenetre.title('MemeID')
 
     MainApp(fenetre)
-
-    # plt.imshow(bestResult[0])
-    # plt.show()
 
     fenetre.mainloop()
