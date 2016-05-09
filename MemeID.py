@@ -17,7 +17,7 @@ class MainApp:
         self.menu1.add_separator()
         self.menu1.add_command(label="Quitter", command=root.quit)
         self.menubar.add_cascade(label="Fichier", menu=self.menu1)
-        # un vrai bouton ça serait bien
+
         self.menu1.add_command(label="So dank", command=self.knowYourDank)
 
         self.panel = PanedWindow(root, orient=HORIZONTAL)
@@ -85,7 +85,6 @@ class MainApp:
         for file in glob.glob("*.jpg"):
             allRef.append([os.path.abspath(file), os.path.splitext(file)[0]])
 
-        print(allRef)
         if filepath is None:
             return None
         img = cv2.imread(filepath)
